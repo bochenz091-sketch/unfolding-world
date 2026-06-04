@@ -2459,15 +2459,16 @@ body.is-modal-open .site-shell {
   }
 
   .map-stage-full .map-canvas {
-    width: calc(100vw - 18px);
-    width: min(calc(100vw - 18px), 72svh);
-    max-width: calc(100vw - 18px);
-    border: 1px solid rgba(244, 240, 231, .13);
-    border-radius: 8px;
-    box-shadow: 0 26px 90px rgba(0, 0, 0, .38);
+    width: 100vw;
+    height: var(--viewport-h);
+    max-width: none;
+    aspect-ratio: auto;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
     transform:
-      translate3d(calc(-50% + var(--map-x) * 8px), calc(-50% + var(--map-y) * 8px + var(--scroll-progress) * -8px), 0)
-      scale(calc(1 + var(--scroll-progress) * .018));
+      translate3d(calc(-50% + var(--map-x) * 5px), calc(-50% + var(--map-y) * 5px + var(--scroll-progress) * -5px), 0)
+      scale(calc(1.002 + var(--scroll-progress) * .012));
   }
 
   .map-chrome {
