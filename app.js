@@ -839,7 +839,7 @@ const expandedDestinations = [
     lat: 35.1688,
     lng: -5.2684,
     color: "#8eb8d8",
-    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Chefchaouen%2C%20Morocco%20(5409521647).jpg?width=2200",
+    image: "https://commons.wikimedia.org/wiki/Special:FilePath/Chefchaouen%20-%20blue%20city%20in%20Morocco%202.jpg?width=2200",
     summary: "Blue alleys, mountain edges, and a medina softened by shade.",
     quote: "Chefchaouen is color turned into quiet.",
     types: ["city", "culture", "mountain"],
