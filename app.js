@@ -1215,6 +1215,9 @@ let matchedSlug = "santorini";
 let lastRouteHash = window.location.hash;
 let luxuryOpenerTimer;
 let currentModalDestination = destinations[0];
+let matchRequestCount = 0;
+const matchHistoryKey = "unfolding-world-match-history";
+const matchRecentLimit = 12;
 
 function getEditorialTitle(destination) {
   return editorialTitles[destination.slug] ?? `${destination.city.toUpperCase()} FIELD STUDY`;
@@ -1225,31 +1228,140 @@ function getEditorialMeta(destination) {
 }
 
 function getDestinationProfile(destination) {
-  return destinationProfiles[destination.slug] ?? {
-    types: destination.types ?? ["city"],
-    budget: destination.budget ?? 3000,
-    signal: destination.summary.toLowerCase()
+  const knownProfile = destinationProfiles[destination.slug] ?? {};
+
+  return {
+    types: knownProfile.types ?? destination.types ?? inferProfileTypes(destination),
+    budget: knownProfile.budget ?? destination.budget ?? inferProfileBudget(destination),
+    signal: knownProfile.signal ?? destination.summary.toLowerCase()
   };
 }
 
-function scoreDestination(destination, requestedType, budget) {
-  const profile = getDestinationProfile(destination);
-  const typeScore = requestedType === "surprise" || profile.types.includes(requestedType) ? 68 : 0;
-  const budgetDistance = Math.abs(profile.budget - budget);
-  const budgetScore = Math.max(0, 34 - budgetDistance / 95);
-  const regionScore = destination.region === "Europe" ? 3 : 0;
-  const quietBoost = requestedType === "culture" && profile.types.includes("culture") ? 5 : 0;
+function inferProfileTypes(destination) {
+  const text = `${destination.city} ${destination.country} ${destination.region} ${destination.summary} ${destination.quote}`.toLowerCase();
+  const types = [];
 
-  return typeScore + budgetScore + regionScore + quietBoost;
+  if (/island|coast|harbor|beach|sea|ocean|bay|reef|atoll|lagoon|cliff|archipelago|water/.test(text)) {
+    types.push("island");
+  }
+
+  if (/mountain|alpine|ridge|peak|valley|glacier|fjord|highland|canyon|trail|altitude|volcanic|forest|lake|wild/.test(text)) {
+    types.push("mountain");
+  }
+
+  if (/desert|dune|sand|oasis|canyon|heat|stone|wadi/.test(text)) {
+    types.push("desert");
+  }
+
+  if (/temple|museum|palace|old|ancient|heritage|history|stone|architecture|ritual|monastery|market|medina|imperial/.test(text)) {
+    types.push("culture");
+  }
+
+  if (/forest|lake|glacier|wild|rain|savanna|jungle|terrace|river|waterfall|cliff|valley|volcanic|trail|national park/.test(text)) {
+    types.push("nature");
+  }
+
+  if (/city|skyline|street|urban|tower|harbor|avenue|district|capital|glass|night|neon/.test(text) || !types.includes("mountain")) {
+    types.push("city");
+  }
+
+  return [...new Set(types)];
+}
+
+function inferProfileBudget(destination) {
+  const regionBase = {
+    Africa: 2400,
+    Asia: 2300,
+    Europe: 3100,
+    "Europe / Asia": 2600,
+    "Middle East": 3000,
+    "North America": 3600,
+    Oceania: 3800,
+    "South America": 2800
+  };
+  const text = `${destination.summary} ${destination.quote}`.toLowerCase();
+  let budget = regionBase[destination.region] ?? 3000;
+
+  if (/private|luxury|polished|resort|atoll|arctic|glacier|remote|untouched/.test(text)) {
+    budget += 700;
+  }
+
+  if (/old quarter|market|street|temple|courtyard|jungle|desert|quiet lanes/.test(text)) {
+    budget -= 350;
+  }
+
+  return Math.min(5600, Math.max(1500, budget));
+}
+
+function getMatchHistory() {
+  try {
+    const parsed = JSON.parse(sessionStorage.getItem(matchHistoryKey) ?? "[]");
+    return Array.isArray(parsed) ? parsed.filter(Boolean).slice(0, matchRecentLimit) : [];
+  } catch {
+    return [];
+  }
+}
+
+function recordMatchedDestination(slug) {
+  const history = getMatchHistory().filter((item) => item !== slug);
+
+  try {
+    sessionStorage.setItem(matchHistoryKey, JSON.stringify([slug, ...history].slice(0, matchRecentLimit)));
+  } catch {
+    // Browsers can block storage in private contexts; matching should still work.
+  }
+}
+
+function buildMatchSeed(requestedType, budget) {
+  matchRequestCount += 1;
+  return `${requestedType}:${Math.round(budget / 100)}:${matchRequestCount}:${Date.now()}`
+    .split("")
+    .reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) >>> 0, 2166136261);
+}
+
+function scoreDestination(destination, requestedType, budget, recentMatches = []) {
+  const profile = getDestinationProfile(destination);
+  const exactType = profile.types.includes(requestedType);
+  const relatedType = requestedType === "surprise" || (requestedType === "city" && profile.types.includes("culture")) || (requestedType === "culture" && profile.types.includes("city")) || (requestedType === "mountain" && profile.types.includes("nature")) || (requestedType === "nature" && (profile.types.includes("mountain") || profile.types.includes("island"))) || (requestedType === "island" && profile.types.includes("nature")) || (requestedType === "desert" && profile.types.includes("culture"));
+  const typeScore = requestedType === "surprise" ? 48 : exactType ? 76 : relatedType ? 24 : 0;
+  const budgetDistance = Math.abs(profile.budget - budget);
+  const budgetScore = Math.max(0, 38 - budgetDistance / 120);
+  const primaryTypeBoost = profile.types[0] === requestedType ? 7 : 0;
+  const underBudgetBoost = profile.budget <= budget ? 4 : 0;
+  const recentIndex = recentMatches.indexOf(destination.slug);
+  const repeatPenalty = recentIndex === -1 ? 0 : Math.max(12, 38 - recentIndex * 5);
+
+  return typeScore + budgetScore + primaryTypeBoost + underBudgetBoost - repeatPenalty;
 }
 
 function findBestDestination(requestedType, budget) {
-  return destinations
-    .map((destination) => ({
+  const recentMatches = getMatchHistory();
+  const ranked = destinations
+    .map((destination, index) => ({
       destination,
-      score: scoreDestination(destination, requestedType, budget)
+      index,
+      score: scoreDestination(destination, requestedType, budget, recentMatches)
     }))
-    .sort((a, b) => b.score - a.score || a.destination.city.localeCompare(b.destination.city))[0].destination;
+    .filter((candidate) => requestedType === "surprise" || candidate.score > 18)
+    .sort((a, b) => b.score - a.score || a.index - b.index);
+  const fallbackRanked = ranked.length ? ranked : destinations.map((destination, index) => ({
+    destination,
+    index,
+    score: scoreDestination(destination, "surprise", budget, recentMatches)
+  })).sort((a, b) => b.score - a.score || a.index - b.index);
+  const shortlist = fallbackRanked.slice(0, Math.min(10, fallbackRanked.length));
+  const topScore = shortlist[0]?.score ?? 0;
+  const seed = buildMatchSeed(requestedType, budget);
+  const weightedPool = shortlist.flatMap((candidate, position) => {
+    const closeness = Math.max(1, Math.round(candidate.score - Math.max(0, topScore - 16)));
+    const freshness = recentMatches.includes(candidate.destination.slug) ? 1 : 4;
+    const weight = Math.max(1, Math.min(9, closeness + freshness - position));
+
+    return Array.from({ length: weight }, () => candidate);
+  });
+  const picked = weightedPool[seed % weightedPool.length] ?? shortlist[seed % shortlist.length] ?? fallbackRanked[0];
+
+  return picked.destination;
 }
 
 function renderMatchResult(destination, requestedType, budget) {
@@ -1402,6 +1514,7 @@ function handleMatchSubmit(event) {
   const destination = findBestDestination(requestedType, budget);
 
   renderMatchResult(destination, requestedType, budget);
+  recordMatchedDestination(destination.slug);
   setActiveDestination(destination.slug);
   setMatchPopover(false);
   window.setTimeout(() => playJourneyTransition(destination), 180);
