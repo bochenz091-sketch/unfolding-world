@@ -1,0 +1,175 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Unfolding World</title>
+    <meta
+      name="description"
+      content="A cinematic premium travel atlas with terrain maps, interactive destinations, and full-screen editorial imagery."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@600;700&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css?v=cinematic-30">
+  </head>
+  <body data-view="home">
+    <section id="luxury-opener" class="luxury-opener" aria-label="Opening cinematic">
+      <div class="opener-space" aria-hidden="true">
+        <div class="opener-paper-field"></div>
+        <div class="opener-ecosystem-field"></div>
+        <div class="opener-scroll">
+          <div id="opener-scroll-tiles" class="opener-scroll-tiles"></div>
+          <div class="opener-contour-flow">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <div class="opener-scroll-sheen"></div>
+          <div class="opener-scroll-shade"></div>
+          <div class="opener-roll opener-roll-left"></div>
+          <div class="opener-roll opener-roll-right"></div>
+        </div>
+      </div>
+      <div class="opener-handoff" aria-hidden="true"></div>
+      <div class="opener-signature">Unfolding World</div>
+      <button id="opener-skip" class="opener-skip" type="button">Enter</button>
+    </section>
+
+    <div id="app" class="site-shell">
+      <header class="site-header" data-reveal>
+        <a class="brand" href="#/" aria-label="Unfolding World home">
+          <span class="brand-mark" aria-hidden="true"></span>
+          <span>Unfolding World</span>
+        </a>
+      </header>
+
+      <main>
+        <section id="map" class="hero-map scroll-story" data-scroll-scene>
+          <section
+            class="map-stage map-stage-full"
+            aria-label="Interactive world travel map"
+            data-reveal
+          >
+            <div class="map-chrome">
+              <span>World physical terrain</span>
+              <span id="active-region">Europe / Paris</span>
+            </div>
+
+            <div id="terrain-map" class="terrain-map cinematic-map">
+              <div id="map-canvas" class="map-canvas">
+                <div id="terrain-tiles" class="terrain-tiles" aria-hidden="true"></div>
+                <div class="terrain-shade" aria-hidden="true"></div>
+                <svg class="route-overlay" viewBox="0 0 100 100" aria-hidden="true">
+                  <path id="animated-route" class="route route-main"></path>
+                  <path class="route route-secondary" d="M17 43 C35 24, 56 31, 74 47 S89 52, 86 70"></path>
+                  <path class="route route-soft" d="M33 51 C45 66, 55 75, 70 81"></path>
+                </svg>
+                <div id="destination-layer" class="destination-layer"></div>
+              </div>
+
+              <button id="match-toggle" class="match-toggle" type="button" aria-label="Open AI Travel Match" aria-expanded="false" aria-controls="match-popover">
+                <span class="match-toggle-icon" aria-hidden="true"></span>
+              </button>
+
+              <aside id="match-popover" class="match-popover" aria-label="AI Travel Match" hidden>
+                <div class="match-panel" aria-label="AI destination matcher">
+                  <form id="match-form" class="match-form">
+                    <div class="match-panel-head">
+                      <span class="match-kicker">AI Travel Match</span>
+                      <button id="match-close" class="match-close" type="button" aria-label="Close AI Travel Match">Close</button>
+                    </div>
+
+                    <label for="travel-type">
+                      <span>Destination type</span>
+                      <select id="travel-type" name="travel-type">
+                        <option value="island">Island</option>
+                        <option value="city">City</option>
+                        <option value="mountain">Mountain</option>
+                        <option value="culture">Culture</option>
+                        <option value="desert">Desert</option>
+                        <option value="nature">Nature</option>
+                        <option value="surprise">Surprise me</option>
+                      </select>
+                    </label>
+
+                    <label for="travel-budget">
+                      <span>Travel budget</span>
+                      <input id="travel-budget" name="travel-budget" type="number" min="600" max="20000" step="100" value="2800" aria-describedby="budget-note">
+                      <small id="budget-note">Estimated total in USD</small>
+                    </label>
+
+                    <button id="match-submit" class="match-submit" type="submit">
+                      Match destination
+                    </button>
+                  </form>
+
+                </div>
+              </aside>
+
+              <p class="map-attribution">
+                Terrain tiles: Esri, USGS, NOAA
+              </p>
+            </div>
+          </section>
+        </section>
+      </main>
+    </div>
+
+    <section id="journey-transition" class="journey-transition" aria-live="polite" hidden>
+      <div class="journey-map-field" aria-hidden="true">
+        <div class="journey-map-canvas">
+          <div id="journey-terrain-tiles" class="journey-terrain-tiles"></div>
+          <div class="journey-map-shade"></div>
+          <div class="journey-crosshair"></div>
+          <span id="journey-target" class="journey-target journey-seal"></span>
+        </div>
+      </div>
+      <div class="journey-grid" aria-hidden="true"></div>
+      <div class="journey-copy">
+        <span>Global route locked</span>
+        <strong id="journey-title">Santorini</strong>
+      </div>
+    </section>
+
+    <div
+      id="destination-modal"
+      class="destination-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+      hidden
+    >
+      <button id="modal-close" class="modal-close" type="button" aria-label="Close destination" data-modal-control>
+        Close
+      </button>
+      <figure class="modal-image-shell">
+        <img id="modal-image" class="modal-image" alt="">
+      </figure>
+      <div id="modal-locator" class="modal-locator" aria-label="Destination location on world map" data-modal-control>
+        <div id="locator-terrain-tiles" class="locator-terrain-tiles" aria-hidden="true"></div>
+        <div class="locator-shade" aria-hidden="true"></div>
+        <span id="locator-target" class="locator-target" aria-hidden="true"></span>
+      </div>
+      <aside class="modal-copy modal-glass">
+        <h2 id="modal-title">Paris</h2>
+        <p id="modal-quote"></p>
+        <button id="guide-generate" class="guide-generate" type="button" data-modal-control>Open guide</button>
+      </aside>
+      <aside id="guide-panel" class="guide-panel" aria-label="Generated destination guide" hidden data-modal-control>
+        <div class="guide-panel-head">
+          <span>Generated field guide</span>
+          <button id="guide-close" class="guide-close" type="button" aria-label="Close generated guide" data-modal-control>Close</button>
+        </div>
+        <p id="guide-intro" class="guide-intro"></p>
+        <div id="guide-spots" class="guide-spots"></div>
+        <p id="guide-rhythm" class="guide-rhythm"></p>
+      </aside>
+    </div>
+
+    <script src="app.js?v=cinematic-30" defer></script>
+  </body>
+</html>
