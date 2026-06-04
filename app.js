@@ -1,6 +1,4 @@
-const terrainTileBase = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/tile";
-const tileZoom = 3;
-const tileGridSize = 2 ** tileZoom;
+const terrainImageUrl = "https://services.arcgisonline.com/ArcGIS/rest/services/World_Physical_Map/MapServer/export?bbox=-20037508.342789244,-20037508.342789244,20037508.342789244,20037508.342789244&bboxSR=102100&imageSR=102100&size=1024,1024&format=jpg&f=image";
 const maxMercatorLatitude = 85.05112878;
 
 const destinations = [
@@ -1409,36 +1407,28 @@ function handleMatchSubmit(event) {
   window.setTimeout(() => playJourneyTransition(destination), 180);
 }
 
-function renderMercatorTiles(container, loadingForRow = (row) => (row < 4 ? "eager" : "lazy")) {
+function renderMercatorMap(container, loading = "eager") {
   if (!container) {
     return;
   }
 
-  const fragments = [];
-
-  for (let row = 0; row < tileGridSize; row += 1) {
-    for (let col = 0; col < tileGridSize; col += 1) {
-      fragments.push(`<img src="${terrainTileBase}/${tileZoom}/${row}/${col}" alt="" loading="${loadingForRow(row)}">`);
-    }
-  }
-
-  container.innerHTML = fragments.join("");
+  container.innerHTML = `<img class="terrain-sheet" src="${terrainImageUrl}" alt="" loading="${loading}">`;
 }
 
 function renderTerrainTiles() {
-  renderMercatorTiles(terrainTiles);
+  renderMercatorMap(terrainTiles);
 }
 
 function renderJourneyTerrainTiles() {
-  renderMercatorTiles(journeyTerrainTiles);
+  renderMercatorMap(journeyTerrainTiles);
 }
 
 function renderLocatorTerrainTiles() {
-  renderMercatorTiles(locatorTerrainTiles, () => "lazy");
+  renderMercatorMap(locatorTerrainTiles, "lazy");
 }
 
 function renderOpenerScrollTiles() {
-  renderMercatorTiles(openerScrollTiles);
+  renderMercatorMap(openerScrollTiles);
 }
 
 function finishLuxuryOpener() {
