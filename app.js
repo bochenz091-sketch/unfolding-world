@@ -1531,7 +1531,8 @@ function handleMapClick(event) {
 function handleMarkerClick(event) {
   event.preventDefault();
   event.stopPropagation();
-  openDestinationModal(event.currentTarget.dataset.slug);
+  const clickedDestination = findNearestDestination(getPointerMapPoint(event), 4.2);
+  openDestinationModal(clickedDestination?.slug ?? event.currentTarget.dataset.slug);
 }
 
 function renderMarkers() {
