@@ -16,12 +16,14 @@
   --map-x: 0;
   --map-y: 0;
   --viewport-h: 100vh;
+  --mobile-map-size: 100vh;
   color-scheme: light;
 }
 
 @supports (height: 100svh) {
   :root {
     --viewport-h: 100svh;
+    --mobile-map-size: 100svh;
   }
 }
 
@@ -120,12 +122,8 @@ body.is-opening-atlas .site-shell {
 .opener-ecosystem-field,
 .opener-scroll,
 .opener-scroll-tiles,
-.opener-contour-flow,
-.opener-contour-flow span,
-.opener-scroll-sheen,
 .opener-scroll-shade,
 .opener-roll,
-.opener-handoff,
 .opener-signature,
 .opener-skip {
   position: absolute;
@@ -222,66 +220,14 @@ body.is-opening-atlas .site-shell {
   grid-template-columns: repeat(8, 1fr);
   grid-template-rows: repeat(8, 1fr);
   filter: sepia(.14) saturate(.86) contrast(1.2) brightness(.8);
-  opacity: 0;
-  transform: scale(1.035);
-  animation: openerInkSettle var(--opener-duration) var(--ease) both;
+  opacity: .9;
+  transform: scale(1.015);
 }
 
 .opener-scroll-tiles img {
   width: 100%;
   height: 100%;
   display: block;
-}
-
-.opener-contour-flow {
-  inset: 0;
-  z-index: 2;
-  overflow: hidden;
-  pointer-events: none;
-  mix-blend-mode: screen;
-  opacity: .72;
-}
-
-.opener-contour-flow span {
-  left: -8%;
-  right: -8%;
-  height: 30%;
-  border-top: 1px solid rgba(244, 240, 231, .18);
-  border-bottom: 1px solid rgba(159, 197, 162, .12);
-  border-radius: 50%;
-  opacity: 0;
-  transform: translateX(-8%) scaleX(.62);
-  animation: openerContourFlow var(--opener-duration) var(--ease) both;
-}
-
-.opener-contour-flow span:nth-child(1) {
-  top: 25%;
-}
-
-.opener-contour-flow span:nth-child(2) {
-  top: 42%;
-  border-top-color: rgba(142, 184, 216, .18);
-  animation-delay: .12s;
-}
-
-.opener-contour-flow span:nth-child(3) {
-  top: 59%;
-  border-top-color: rgba(215, 181, 109, .18);
-  animation-delay: .24s;
-}
-
-.opener-scroll-sheen {
-  inset: 0;
-  z-index: 3;
-  background:
-    linear-gradient(112deg, transparent 0 38%, rgba(244, 240, 231, .22) 48%, transparent 58%),
-    radial-gradient(circle at 50% 50%, transparent 0 36%, rgba(255, 255, 255, .08) 66%, transparent 78%);
-  filter: blur(10px);
-  opacity: 0;
-  transform: translateX(-24%);
-  mix-blend-mode: screen;
-  pointer-events: none;
-  animation: openerSheen var(--opener-duration) var(--ease) both;
 }
 
 .opener-scroll-shade {
@@ -316,22 +262,6 @@ body.is-opening-atlas .site-shell {
 .opener-roll-right {
   right: 49.2%;
   animation: openerRollRight var(--opener-duration) var(--ease) both;
-}
-
-.opener-handoff {
-  inset: 0;
-  z-index: 5;
-  pointer-events: none;
-  opacity: 0;
-  background:
-    linear-gradient(110deg, transparent 0 34%, rgba(244, 240, 231, .2) 50%, transparent 66%),
-    radial-gradient(circle at 50% 50%, rgba(159, 197, 162, .14), transparent 30%),
-    radial-gradient(circle at 50% 50%, rgba(142, 184, 216, .12), transparent 40%);
-  filter: blur(22px);
-}
-
-.luxury-opener.is-closing .opener-handoff {
-  animation: openerHandoffBloom .96s var(--ease) both;
 }
 
 .opener-signature {
@@ -2062,56 +1992,6 @@ body.is-modal-open .site-shell {
   }
 }
 
-@keyframes openerContourFlow {
-  0%,
-  18% {
-    opacity: 0;
-    transform: translateX(-8%) scaleX(.62);
-  }
-  44%,
-  78% {
-    opacity: .68;
-    transform: translateX(0) scaleX(1);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(8%) scaleX(1.1);
-  }
-}
-
-@keyframes openerSheen {
-  0%,
-  28% {
-    opacity: 0;
-    transform: translateX(-24%);
-  }
-  52% {
-    opacity: .62;
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(24%);
-  }
-}
-
-@keyframes openerInkSettle {
-  0%,
-  16% {
-    opacity: 0;
-    filter: sepia(.28) saturate(.5) contrast(1.08) brightness(.55) blur(7px);
-    transform: scale(1.08);
-  }
-  58% {
-    opacity: .9;
-    filter: sepia(.18) saturate(.74) contrast(1.18) brightness(.72) blur(1px);
-  }
-  100% {
-    opacity: .96;
-    filter: sepia(.14) saturate(.86) contrast(1.2) brightness(.8) blur(0);
-    transform: scale(1.018);
-  }
-}
-
 @keyframes openerRollLeft {
   0% {
     left: 49.2%;
@@ -2154,24 +2034,6 @@ body.is-modal-open .site-shell {
     opacity: 0;
     filter: blur(8px);
     transform: scale(1.018);
-  }
-}
-
-@keyframes openerHandoffBloom {
-  0% {
-    opacity: 0;
-    transform: translateX(-18%) scale(1.02);
-    filter: blur(22px);
-  }
-  48% {
-    opacity: .72;
-    transform: translateX(0) scale(1.04);
-    filter: blur(14px);
-  }
-  100% {
-    opacity: 0;
-    transform: translateX(18%) scale(1.08);
-    filter: blur(26px);
   }
 }
 
@@ -2459,10 +2321,10 @@ body.is-modal-open .site-shell {
   }
 
   .map-stage-full .map-canvas {
-    width: 100vw;
-    height: var(--viewport-h);
+    width: max(100vw, var(--mobile-map-size));
+    height: max(100vw, var(--mobile-map-size));
     max-width: none;
-    aspect-ratio: auto;
+    aspect-ratio: 1 / 1;
     border: 0;
     border-radius: 0;
     box-shadow: none;
