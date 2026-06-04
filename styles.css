@@ -2468,20 +2468,21 @@ body.is-modal-open .site-shell {
   .destination-modal.is-guide-page .modal-copy {
     left: 24px;
     right: 24px;
-    top: 112px;
+    top: 164px;
     width: auto;
   }
 
   .destination-modal.is-guide-page .guide-panel {
     left: 24px;
     right: 24px;
-    top: 252px;
+    top: 304px;
     width: auto;
-    max-height: calc(var(--viewport-h) - 330px);
+    max-height: calc(var(--viewport-h) - 382px);
   }
 
   .destination-modal.is-guide-page #modal-title {
-    font-size: clamp(48px, 16vw, 78px);
+    max-width: calc(100vw - 48px);
+    font-size: clamp(42px, 13vw, 62px);
   }
 
   .destination-modal.is-guide-page .guide-intro {
