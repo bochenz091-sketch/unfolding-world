@@ -1216,6 +1216,7 @@ let lastRouteHash = window.location.hash;
 let luxuryOpenerTimer;
 let currentModalDestination = destinations[0];
 let matchRequestCount = 0;
+let modalImageLoadToken = 0;
 const matchHistoryKey = "unfolding-world-match-history";
 const matchRecentLimit = 12;
 
@@ -1317,6 +1318,81 @@ function buildMatchSeed(requestedType, budget) {
   return `${requestedType}:${Math.round(budget / 100)}:${matchRequestCount}:${Date.now()}`
     .split("")
     .reduce((hash, char) => ((hash << 5) - hash + char.charCodeAt(0)) >>> 0, 2166136261);
+}
+
+function createDestinationImageFallback(destination) {
+  const color = destination.color || "#d7b56d";
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 1000">
+      <defs>
+        <radialGradient id="gold" cx="50%" cy="44%" r="70%">
+          <stop offset="0%" stop-color="${color}" stop-opacity=".34"/>
+          <stop offset="42%" stop-color="${color}" stop-opacity=".12"/>
+          <stop offset="100%" stop-color="#050504" stop-opacity="1"/>
+        </radialGradient>
+        <linearGradient id="shade" x1="0%" x2="100%" y1="0%" y2="100%">
+          <stop offset="0%" stop-color="#1c1c18"/>
+          <stop offset="54%" stop-color="#090908"/>
+          <stop offset="100%" stop-color="#000"/>
+        </linearGradient>
+      </defs>
+      <rect width="1600" height="1000" fill="url(#shade)"/>
+      <rect width="1600" height="1000" fill="url(#gold)"/>
+      <path d="M110 680 C330 560, 460 610, 640 500 S960 380, 1210 450 S1440 520, 1510 390" fill="none" stroke="${color}" stroke-opacity=".22" stroke-width="2"/>
+      <path d="M70 760 C320 650, 520 710, 760 590 S1040 510, 1500 620" fill="none" stroke="#f4f0e7" stroke-opacity=".12" stroke-width="1.5"/>
+      <circle cx="1280" cy="260" r="74" fill="none" stroke="${color}" stroke-opacity=".2" stroke-width="1.5"/>
+      <circle cx="1280" cy="260" r="5" fill="#f4f0e7" fill-opacity=".76"/>
+    </svg>
+  `.trim();
+
+  return `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}`;
+}
+
+function getDestinationImageUrl(source) {
+  const isCompactViewport = window.innerWidth <= 760 || window.devicePixelRatio > 2;
+
+  if (source.includes("images.unsplash.com")) {
+    return source
+      .replace(/w=\d+/, isCompactViewport ? "w=1400" : "w=1800")
+      .replace(/q=\d+/, isCompactViewport ? "q=72" : "q=82");
+  }
+
+  if (source.includes("commons.wikimedia.org")) {
+    return source.replace(/width=\d+/, isCompactViewport ? "width=1400" : "width=1800");
+  }
+
+  return source;
+}
+
+function loadDestinationImage(destination) {
+  const token = ++modalImageLoadToken;
+  const fallback = createDestinationImageFallback(destination);
+  const imageUrl = getDestinationImageUrl(destination.image);
+
+  modalImage.dataset.loadState = "loading";
+  modalImage.dataset.remoteSrc = imageUrl;
+  modalImage.src = fallback;
+  modalImage.alt = `${destination.city} destination photograph`;
+
+  const preloader = new Image();
+  preloader.decoding = "async";
+  preloader.onload = () => {
+    if (token !== modalImageLoadToken) {
+      return;
+    }
+
+    modalImage.dataset.loadState = "loaded";
+    modalImage.src = imageUrl;
+  };
+  preloader.onerror = () => {
+    if (token !== modalImageLoadToken) {
+      return;
+    }
+
+    modalImage.dataset.loadState = "fallback";
+    modalImage.src = fallback;
+  };
+  preloader.src = imageUrl;
 }
 
 function scoreDestination(destination, requestedType, budget, recentMatches = []) {
@@ -1687,8 +1763,7 @@ function setActiveDestination(slug) {
 
 function fillModal(destination) {
   currentModalDestination = destination;
-  modalImage.src = destination.image;
-  modalImage.alt = `${destination.city} destination photograph`;
+  loadDestinationImage(destination);
   modalTitle.textContent = destination.city;
   modalQuote.textContent = destination.quote;
   updateDestinationLocator(destination);
