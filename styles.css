@@ -1588,9 +1588,19 @@ body.is-modal-open .site-shell {
   object-fit: cover;
   display: block;
   transform-origin: center;
+  transition: filter .45s var(--ease), opacity .45s var(--ease);
   animation:
     modalImageReveal .95s var(--ease) both,
     modalImageDrift 18s ease-in-out .95s infinite alternate;
+}
+
+.modal-image[data-load-state="loading"],
+.modal-image[data-load-state="fallback"] {
+  filter: saturate(.74) contrast(1.18) brightness(.74);
+}
+
+.modal-image[data-load-state="loaded"] {
+  filter: saturate(1) contrast(1) brightness(1);
 }
 
 .modal-image-shell::after {
