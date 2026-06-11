@@ -1,0 +1,280 @@
+:root {
+  --ease-luxury: cubic-bezier(.19, 1, .22, 1);
+  --motion-duration: 820ms;
+  --journey-duration: 1.85s;
+  --opener-depth: 0;
+  --modal-depth: 0;
+}
+
+body.is-opening-atlas .site-shell {
+  filter: blur(3px) brightness(.7) saturate(.92);
+  transform: scale(1.008);
+}
+
+.luxury-opener {
+  --opener-depth: 1;
+  will-change: opacity;
+}
+
+.luxury-opener::before,
+.luxury-opener::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.luxury-opener::before {
+  z-index: 1;
+  background:
+    linear-gradient(112deg, transparent 0 36%, rgba(244, 240, 231, .13) 46%, rgba(215, 181, 109, .1) 50%, transparent 62%),
+    radial-gradient(ellipse at 50% 52%, rgba(215, 181, 109, .16), transparent 42%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  transform: translate3d(-7%, 0, 0) scale(1.02);
+  animation: openerLinenGlow var(--opener-duration) var(--ease-luxury) both;
+  will-change: transform, opacity;
+}
+
+.luxury-opener::after {
+  z-index: 5;
+  background:
+    linear-gradient(90deg, rgba(0, 0, 0, .5), transparent 20%, transparent 80%, rgba(0, 0, 0, .52)),
+    linear-gradient(180deg, rgba(255, 255, 255, .04), transparent 32%, rgba(0, 0, 0, .22));
+  opacity: 0;
+  transform: scaleX(1.06);
+  animation: openerSilkVeil var(--opener-duration) var(--ease-luxury) both;
+  will-change: transform, opacity;
+}
+
+.opener-scroll {
+  animation-timing-function: var(--ease-luxury);
+  will-change: clip-path, transform, opacity;
+}
+
+.opener-scroll-tiles,
+.opener-signature,
+.site-shell,
+.terrain-map,
+.map-marker,
+.marker-anchor,
+.marker-beacon,
+.match-toggle,
+.match-popover,
+.journey-map-field,
+.journey-map-canvas,
+.journey-target,
+.modal-image,
+.guide-panel.is-visible {
+  backface-visibility: hidden;
+  will-change: transform, opacity;
+}
+
+.site-shell {
+  transition:
+    filter var(--motion-duration) var(--ease-luxury),
+    transform var(--motion-duration) var(--ease-luxury);
+}
+
+.terrain-map {
+  animation: mapAwaken 1.34s var(--ease-luxury) both;
+}
+
+body.is-map-arriving .terrain-map::before,
+body.is-map-arriving .map-canvas {
+  animation-duration: 1.32s;
+  animation-timing-function: var(--ease-luxury);
+}
+
+.map-marker {
+  transform: translate3d(0, 18px, 0) scale(.72);
+  animation: markerIn .68s var(--ease-luxury) forwards;
+  contain: layout style;
+}
+
+.marker-anchor {
+  transition: opacity .28s ease, transform .32s var(--ease-luxury);
+}
+
+.marker-beacon {
+  transition: transform .32s var(--ease-luxury), box-shadow .32s var(--ease-luxury);
+}
+
+.match-toggle {
+  transition:
+    transform .34s var(--ease-luxury),
+    border-color .3s ease,
+    box-shadow .34s var(--ease-luxury);
+}
+
+.match-popover {
+  animation: matchPopoverIn .42s var(--ease-luxury) both;
+}
+
+.match-panel::before {
+  animation-duration: 12s;
+}
+
+.match-submit {
+  transition:
+    transform .3s var(--ease-luxury),
+    box-shadow .34s var(--ease-luxury),
+    background .3s ease;
+}
+
+body.is-transitioning .site-shell {
+  animation: sceneDim var(--motion-duration) var(--ease-luxury) both;
+}
+
+.journey-transition {
+  --scene-duration: var(--journey-duration);
+  will-change: opacity;
+}
+
+.journey-transition.is-playing::before,
+.journey-transition.is-playing::after,
+.journey-transition.is-playing .journey-map-field,
+.journey-transition.is-playing .journey-crosshair,
+.journey-transition.is-playing .journey-target,
+.journey-transition.is-playing .journey-grid,
+.journey-transition.is-playing .journey-copy {
+  animation-duration: var(--scene-duration);
+  animation-timing-function: var(--ease-luxury);
+}
+
+.journey-transition.is-playing .journey-seal::after {
+  animation: journeyPinSettle var(--scene-duration) var(--ease-luxury) both;
+}
+
+.destination-modal {
+  --modal-depth: 1;
+  will-change: opacity;
+}
+
+.destination-modal.is-opening::before {
+  animation: modalRevealSweep 1.05s var(--ease-luxury) both;
+}
+
+body.is-modal-open .site-shell {
+  filter: blur(5px) saturate(.88) brightness(.72);
+  transform: scale(.99);
+}
+
+.destination-modal.is-guide-page .modal-locator {
+  animation: locatorPanelIn .74s var(--ease-luxury) both;
+}
+
+.modal-image {
+  transition:
+    filter .45s var(--ease-luxury),
+    opacity .45s var(--ease-luxury),
+    transform .8s var(--ease-luxury);
+  animation:
+    modalImageReveal .84s var(--ease-luxury) both,
+    modalImageDrift 24s ease-in-out .84s infinite alternate;
+}
+
+.guide-generate {
+  transition:
+    transform .24s var(--ease-luxury),
+    border-color .24s ease,
+    background .24s ease;
+}
+
+.guide-panel.is-visible {
+  animation: guidePanelIn .68s var(--ease-luxury) both;
+}
+
+.destination-modal.is-guide-page::before {
+  animation: guidePageIn .82s var(--ease-luxury) both;
+}
+
+.guide-panel.is-visible .guide-card {
+  animation: guideCardIn .5s var(--ease-luxury) both;
+}
+
+@keyframes openerLinenGlow {
+  0% {
+    opacity: 0;
+    transform: translate3d(-8%, 0, 0) scale(1.02);
+  }
+  28%,
+  72% {
+    opacity: .72;
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(8%, 0, 0) scale(1.015);
+  }
+}
+
+@keyframes openerSilkVeil {
+  0% {
+    opacity: .9;
+    transform: scaleX(1.12);
+  }
+  22%,
+  72% {
+    opacity: .38;
+    transform: scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(.96);
+  }
+}
+
+@keyframes sceneDim {
+  from {
+    filter: blur(0) brightness(1) saturate(1);
+    transform: scale(1);
+  }
+  to {
+    filter: blur(4px) brightness(.66) saturate(.86);
+    transform: scale(.992);
+  }
+}
+
+@keyframes journeyPinSettle {
+  0%,
+  24% {
+    opacity: 0;
+    transform: scale(.72) rotate(-16deg);
+  }
+  46%,
+  74% {
+    opacity: .72;
+    transform: scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.16) rotate(8deg);
+  }
+}
+
+@media (max-width: 760px) {
+  body.is-opening-atlas .site-shell,
+  body.is-modal-open .site-shell,
+  body.is-transitioning .site-shell {
+    filter: brightness(.72) saturate(.9);
+  }
+
+  .luxury-opener {
+    --opener-duration: 3.6s;
+  }
+
+  body.is-map-arriving .map-canvas {
+    animation-duration: .96s;
+  }
+
+  .modal-image {
+    animation:
+      modalImageReveal .7s var(--ease-luxury) both,
+      modalImageDrift 28s ease-in-out .7s infinite alternate;
+  }
+
+  .journey-transition {
+    --journey-duration: 1.35s;
+  }
+}
